@@ -1,0 +1,141 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--cream-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 84px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.navbar-logo {
+  width: 78px;
+  height: 48px;
+}
+
+.navbar-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--maroon);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.navbar-links ul {
+  display: flex;
+  gap: 36px;
+}
+
+.navbar-links a {
+  font-weight: 500;
+  font-size: 0.98rem;
+  color: var(--charcoal);
+  position: relative;
+  padding: 4px 0;
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background: var(--terracotta-deep);
+  transition: width 0.25s ease;
+}
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.navbar-toggle span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--maroon);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.navbar-toggle.is-open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.navbar-toggle.is-open span:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar-toggle.is-open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.navbar-mobile {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-toggle {
+    display: flex;
+  }
+
+  .navbar-title {
+    font-size: 1.25rem;
+  }
+
+  .navbar-mobile {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    background: var(--cream-soft);
+    border-top: 1px solid var(--border-soft);
+    transition: max-height 0.3s ease;
+  }
+
+  .navbar-mobile.is-open {
+    max-height: 300px;
+  }
+
+  .navbar-mobile ul {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 32px 20px;
+    gap: 4px;
+  }
+
+  .navbar-mobile a {
+    display: block;
+    padding: 12px 0;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-soft);
+  }
+}
