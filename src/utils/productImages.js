@@ -4,21 +4,24 @@ const modules = import.meta.glob('../assets/products/**/*.{jpg,jpeg,png}', {
   import: 'default',
 });
 
-// Returns the Nth image (1-indexed, matching 001.jpeg / 002.jpeg naming) in a category folder.
+// Matches your current setup: assets/products/<category>/<n>.jpeg
+// e.g. productImage('sarees', 1) -> assets/products/sarees/001.jpeg
 export function productImage(category, index) {
-  const folderName = String(category || '').trim();
-  const fileNumber = String(index).padStart(3, '0');
-
-  const key = Object.keys(modules).find((path) => {
-    const lowerPath = path.toLowerCase();
-    const categoryMatches = lowerPath.includes(`/products/${folderName.toLowerCase()}/`);
-    const fileMatches =
-      lowerPath.endsWith(`/${fileNumber}.jpeg`) ||
-      lowerPath.endsWith(`/${fileNumber}.jpg`) ||
-      lowerPath.endsWith(`/${fileNumber}.png`);
-
-    return categoryMatches && fileMatches;
-  });
-
+  const suffix = `/${String(index).padStart(3, '0')}.jpeg`;
+  const key = Object.keys(modules).find(
+    (path) => path.includes(`/products/${category}/`) && path.endsWith(suffix)
+  );
   return key ? modules[key] : '';
+}
+
+// For when you're ready to give a product multiple color variants with their
+// own photos: put images in assets/products/<category>/<product-slug>/<color-slug>/
+// (1.jpeg, 2.jpeg, 3.jpeg) and call this instead.
+export function productImageSet(category, productSlug, colorSlug) {
+  const prefix = `/products/${category}/${productSlug}/${colorSlug}/`;
+
+  return Object.keys(modules)
+    .filter((path) => path.includes(prefix))
+    .sort()
+    .map((path) => modules[path]);
 }

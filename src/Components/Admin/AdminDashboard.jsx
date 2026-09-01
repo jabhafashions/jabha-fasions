@@ -4,7 +4,7 @@ import { useProducts } from '../../context/ProductsContext';
 import ProductForm from './ProductForm';
 
 export default function AdminDashboard({ onLogout }) {
-  const { products, deleteProduct } = useProducts();
+  const { products, deleteProduct, resetToDefaults, saveError } = useProducts();
   const [mode, setMode] = useState('list'); // 'list' | 'add' | 'edit'
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -29,6 +29,16 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
+  const handleReset = () => {
+    if (
+      window.confirm(
+        'Reset the catalogue to the default products from initialProducts.js? This replaces everything currently saved, including any products you added or edited.'
+      )
+    ) {
+      resetToDefaults();
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <header className="admin-header">
@@ -38,9 +48,12 @@ export default function AdminDashboard({ onLogout }) {
         </div>
         <div className="admin-header-actions">
           <Link to="/" className="btn">View Site</Link>
+          <button className="btn" onClick={handleReset}>Reset to Defaults</button>
           <button className="btn" onClick={onLogout}>Log Out</button>
         </div>
       </header>
+
+      {saveError && <div className="admin-banner admin-banner-error">{saveError}</div>}
 
       {mode === 'list' && (
         <>
@@ -60,6 +73,7 @@ export default function AdminDashboard({ onLogout }) {
                   <th>Category</th>
                   <th>Price</th>
                   <th>Description</th>
+                  <th>Colors</th>
                   <th></th>
                 </tr>
               </thead>
@@ -67,12 +81,26 @@ export default function AdminDashboard({ onLogout }) {
                 {products.map((product) => (
                   <tr key={product.id}>
                     <td>
-                      <img className="admin-thumb" src={product.image} alt={product.name} />
+                      <img
+                        className="admin-thumb"
+                        src={product.variants?.[0]?.images?.[0] || ''}
+                        alt={product.name}
+                      />
                     </td>
                     <td>{product.name}</td>
                     <td>{product.category}</td>
                     <td>&#8377;{Number(product.price).toLocaleString('en-IN')}</td>
                     <td className="admin-desc-cell">{product.description}</td>
+                    <td>
+                      {(product.variants || []).map((v) => (
+                        <span
+                          key={v.id}
+                          className="admin-swatch-dot"
+                          style={{ backgroundColor: v.hex || '#ccc' }}
+                          title={v.color}
+                        />
+                      ))}
+                    </td>
                     <td className="admin-row-actions">
                       <button className="btn" onClick={() => startEdit(product)}>Edit</button>
                       <button className="btn admin-danger" onClick={() => handleDelete(product)}>Delete</button>
@@ -81,7 +109,7 @@ export default function AdminDashboard({ onLogout }) {
                 ))}
                 {products.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="admin-empty">
+                    <td colSpan={7} className="admin-empty">
                       No products yet — add your first one above.
                     </td>
                   </tr>

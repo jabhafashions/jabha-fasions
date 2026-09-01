@@ -5,6 +5,14 @@ import { productImage } from '../utils/productImages';
 
 export const CATEGORIES = ['Sarees', 'Madisars', 'Kurtis'];
 
+// Each product has one variant to start with — that's just today's single
+// photo per item wrapped in the same shape the color-variant feature uses.
+// To add real color options later: open the product in /admin and use
+// "+ Add Color" to add more variants, each with its own photos.
+function singleVariant(image, color = '') {
+  return [{ id: 'v1', color, hex: '#7a1f22', images: image ? [image] : [] }];
+}
+
 export const initialProducts = [
   {
     id: 'p1',
@@ -13,7 +21,7 @@ export const initialProducts = [
     price: 4200,
     description:
       'Traditional saree with rich temple motifs, premium finish, and an elegant drape for festive occasions.',
-    image: productImage('sarees', 1),
+    variants: singleVariant(productImage('sarees', 1)),
   },
   {
     id: 'p2',
@@ -22,7 +30,7 @@ export const initialProducts = [
     price: 2600,
     description:
       'Lightweight cotton saree crafted for comfort, style, and everyday grace with a soft woven finish.',
-    image: productImage('sarees', 2),
+    variants: singleVariant(productImage('sarees', 2)),
   },
   {
     id: 'p3',
@@ -31,96 +39,105 @@ export const initialProducts = [
     price: 5600,
     description:
       'A graceful silk saree with a vibrant border and classic patterns suited for celebrations and functions.',
-    image: productImage('sarees', 3),
+    variants: singleVariant(productImage('sarees', 3)),
   },
   {
     id: 'p4',
+    category: 'Sarees',
+    name: 'Royal Woven Saree',
+    price: 6100,
+    description:
+      'A richly woven saree with a regal finish designed to stand out at weddings, poojas, and evening gatherings.',
+    variants: singleVariant(productImage('sarees', 4)), // no photo yet — will show "No image yet" until you add sarees/004.jpeg
+  },
+  {
+    id: 'p5',
     category: 'Madisars',
     name: 'Classic Madisar',
     price: 3800,
     description:
       'Traditional madisar drape in a refined style, designed for pooja days and special family occasions.',
-    image: productImage('Madisars', 1),
+    variants: singleVariant(productImage('Madisars', 1)),
   },
   {
-    id: 'p5',
+    id: 'p6',
     category: 'Madisars',
     name: 'Festival Madisar Set',
     price: 4500,
     description:
       'Elegant madisar styling with a polished drape and graceful finish that pairs beautifully with festive jewellery.',
-    image: productImage('Madisars', 2),
+    variants: singleVariant(productImage('Madisars', 2)),
   },
   {
-    id: 'p6',
+    id: 'p7',
     category: 'Madisars',
     name: 'Premium Pleated Madisar',
     price: 4900,
     description:
       'Contemporary interpretation of the classic madisar, balancing tradition with a neat modern silhouette.',
-    image: productImage('Madisars', 3),
+    variants: singleVariant(productImage('Madisars', 3)),
   },
   {
-    id: 'p7',
+    id: 'p8',
     category: 'Madisars',
     name: 'Pearl Finish Madisar',
     price: 5200,
     description:
       'A refined madisar with delicate detailing and a polished drape crafted for festive grace and pooja elegance.',
-    image: productImage('Madisars', 4),
+    variants: singleVariant(productImage('Madisars', 4)),
   },
   {
-    id: 'p8',
+    id: 'p9',
     category: 'Madisars',
     name: 'Minimal Classic Madisar',
     price: 4100,
     description:
       'A graceful, understated design that keeps the traditional form intact while feeling light and comfortable.',
-    image: productImage('Madisars', 5),
+    variants: singleVariant(productImage('Madisars', 5)),
   },
   {
-    id: 'p9',
+    id: 'p10',
     category: 'Madisars',
     name: 'Temple Occasion Madisar',
     price: 5600,
     description:
       'Elegant styling with a ceremonial finish ideal for temple visits, family functions, and traditional events.',
-    image: productImage('Madisars', 6),
+    variants: singleVariant(productImage('Madisars', 6)),
   },
   {
-    id: 'p10',
+    id: 'p11',
     category: 'Kurtis',
     name: 'Printed Cotton Kurti',
     price: 1200,
     description:
       'Everyday cotton kurti with a flattering silhouette and subtle print work for easy styling.',
-    image: productImage('Kurtis', 1),
+    variants: singleVariant(productImage('Kurtis', 1)),
   },
   {
-    id: 'p11',
+    id: 'p12',
     category: 'Kurtis',
     name: 'Embroidered Kurti',
     price: 1800,
     description:
       'Comfortable and stylish kurti featuring detailed thread work and a semi-formal finish.',
-    image: productImage('Kurtis', 2),
+    variants: singleVariant(productImage('Kurtis', 2)),
   },
   {
-    id: 'p12',
+    id: 'p13',
     category: 'Kurtis',
     name: 'Festive Kurti',
     price: 2200,
     description:
       'A statement kurti for celebrations with elegant detailing and rich fabric texture.',
-    image: productImage('Kurtis', 3),
+    variants: singleVariant(productImage('Kurtis', 3)),
   },
   {
-    id: 'p13',
+    id: 'p14',
     category: 'Kurtis',
     name: 'Classic Day Wear Kurti',
     price: 1600,
     description:
       'A versatile kurti designed for everyday elegance with an easy fit and graceful finish.',
-    image: productImage('Kurtis', 4),
+    variants: singleVariant(productImage('Kurtis', 4)),
   },
 ];

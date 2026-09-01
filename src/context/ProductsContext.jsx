@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { initialProducts, CATEGORIES } from '../data/initialProducts';
 
-const STORAGE_KEY = 'jabha_products_v3';
-const LEGACY_KEYS = ['jabha_products_v1', 'jabha_products_v2'];
+const STORAGE_KEY = 'jabha_products_v4';
+const LEGACY_KEYS = ['jabha_products_v1', 'jabha_products_v2', 'jabha_products_v3'];
 
 const ProductsContext = createContext(null);
 
@@ -27,12 +27,19 @@ function loadProducts() {
 
 export function ProductsProvider({ children }) {
   const [products, setProducts] = useState(loadProducts);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+      setSaveError(null);
     } catch (err) {
       console.error('Could not save products.', err);
+      setSaveError(
+        "Your last change couldn't be saved — the browser's storage is full. " +
+          'This usually means an uploaded photo was too large. Try a smaller image, ' +
+          'or use an image URL instead of uploading a file.'
+      );
     }
   }, [products]);
 
@@ -62,6 +69,7 @@ export function ProductsProvider({ children }) {
         updateProduct,
         deleteProduct,
         resetToDefaults,
+        saveError,
       }}
     >
       {children}

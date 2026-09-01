@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useProducts } from '../../context/ProductsContext';
+import ProductCard from './ProductCard';
 import './Products.css';
 
 export default function Products() {
@@ -46,19 +47,7 @@ export default function Products() {
         ) : (
           <div className="products-grid">
             {filtered.map((product) => (
-              <article className="product-card" key={product.id}>
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} loading="lazy" />
-                </div>
-                <div className="product-body">
-                  <span className="product-category">{product.category}</span>
-                  <h3>{product.name}</h3>
-                  <p>{product.description}</p>
-                  <span className="product-price">
-                    &#8377;{Number(product.price).toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </article>
+              <ProductCard product={product} key={product.id} />
             ))}
           </div>
         )}
