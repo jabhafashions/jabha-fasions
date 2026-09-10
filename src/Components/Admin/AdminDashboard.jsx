@@ -4,7 +4,7 @@ import { useProducts } from '../../context/ProductsContext';
 import ProductForm from './ProductForm';
 
 export default function AdminDashboard({ onLogout }) {
-  const { products, deleteProduct, resetToDefaults, saveError } = useProducts();
+  const { products, deleteProduct, error, loading } = useProducts();
   const [mode, setMode] = useState('list'); // 'list' | 'add' | 'edit'
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -29,16 +29,6 @@ export default function AdminDashboard({ onLogout }) {
     }
   };
 
-  const handleReset = () => {
-    if (
-      window.confirm(
-        'Reset the catalogue to the default products from initialProducts.js? This replaces everything currently saved, including any products you added or edited.'
-      )
-    ) {
-      resetToDefaults();
-    }
-  };
-
   return (
     <div className="admin-dashboard">
       <header className="admin-header">
@@ -48,17 +38,18 @@ export default function AdminDashboard({ onLogout }) {
         </div>
         <div className="admin-header-actions">
           <Link to="/" className="btn">View Site</Link>
-          <button className="btn" onClick={handleReset}>Reset to Defaults</button>
           <button className="btn" onClick={onLogout}>Log Out</button>
         </div>
       </header>
 
-      {saveError && <div className="admin-banner admin-banner-error">{saveError}</div>}
+      {error && <div className="admin-banner admin-banner-error">{error}</div>}
 
       {mode === 'list' && (
         <>
           <div className="admin-toolbar">
-            <span>{products.length} product{products.length === 1 ? '' : 's'}</span>
+            <span>
+              {loading ? 'Loading…' : `${products.length} product${products.length === 1 ? '' : 's'}`}
+            </span>
             <button className="btn btn-solid" onClick={startAdd}>
               + Add New Product
             </button>

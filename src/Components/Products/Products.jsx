@@ -4,7 +4,7 @@ import ProductCard from './ProductCard';
 import './Products.css';
 
 export default function Products() {
-  const { products, categories } = useProducts();
+  const { products, categories, loading } = useProducts();
   const [activeCategory, setActiveCategory] = useState('All');
 
   const filtered = useMemo(() => {
@@ -40,7 +40,9 @@ export default function Products() {
           ))}
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <p className="products-empty">Loading products&hellip;</p>
+        ) : filtered.length === 0 ? (
           <p className="products-empty">
             No products in this category yet. Add one from the admin page.
           </p>

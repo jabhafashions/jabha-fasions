@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProducts } from '../../context/ProductsContext';
+import { supabase } from '../../lib/supabaseClient';
 
 const EMPTY_VARIANT = { color: '', hex: '#7a1f22', images: ['', '', ''] };
 
@@ -18,6 +19,9 @@ function makeVariantId() {
 export default function ProductForm({ initialValue, onDone, onCancel }) {
   const { categories, addProduct, updateProduct } = useProducts();
   const [form, setForm] = useState(EMPTY_FORM);
+  const [uploadingSlot, setUploadingSlot] = useState(null); // e.g. "0-1" while that photo uploads
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
   const isEditing = Boolean(initialValue);
 
   useEffect(() => {
@@ -62,28 +66,58 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
     }));
   };
 
-  const handleImageFile = (variantIndex, imageIndex) => (e) => {
+  // Resizes an image file down to a sensible max dimension and returns it
+  // as a compressed JPEG Blob, so we're not uploading full-resolution
+  // camera/phone photos.
+  const resizeImage = (file, maxDim = 1400) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.8);
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleImageFile = (variantIndex, imageIndex) => async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        // Shrink to a sensible max size before storing, so a full-resolution
-        // phone photo doesn't blow past the browser's storage limit.
-        const maxDim = 1000;
-        const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        updateVariantImage(variantIndex, imageIndex, canvas.toDataURL('image/jpeg', 0.8));
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
+    const slotKey = `${variantIndex}-${imageIndex}`;
+    setUploadingSlot(slotKey);
+    setFormError('');
+
+    try {
+      const blob = await resizeImage(file);
+      const path = `${Date.now()}-${variantIndex}-${imageIndex}.jpg`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(path, blob, { contentType: 'image/jpeg' });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+      updateVariantImage(variantIndex, imageIndex, data.publicUrl);
+    } catch (err) {
+      console.error('Image upload failed.', err);
+      setFormError(
+        "Couldn't upload that photo — check your Supabase storage bucket/policies, or paste an image URL instead."
+      );
+    } finally {
+      setUploadingSlot(null);
+    }
   };
 
   const addVariant = () => {
@@ -97,8 +131,11 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
+    setSubmitting(true);
+
     const payload = {
       name: form.name,
       category: form.category,
@@ -111,12 +148,18 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
         images: v.images.filter(Boolean), // drop empty image slots
       })),
     };
-    if (isEditing) {
-      updateProduct(initialValue.id, payload);
+
+    const ok = isEditing
+      ? await updateProduct(initialValue.id, payload)
+      : await addProduct(payload);
+
+    setSubmitting(false);
+
+    if (ok) {
+      onDone();
     } else {
-      addProduct(payload);
+      setFormError("Couldn't save this product — please try again.");
     }
-    onDone();
   };
 
   return (
@@ -232,7 +275,11 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
                     type="file"
                     accept="image/*"
                     onChange={handleImageFile(vIndex, imgIndex)}
+                    disabled={uploadingSlot === `${vIndex}-${imgIndex}`}
                   />
+                  {uploadingSlot === `${vIndex}-${imgIndex}` && (
+                    <p className="variant-image-uploading">Uploading&hellip;</p>
+                  )}
                   {variant.images[imgIndex] && (
                     <img
                       className="variant-image-preview"
@@ -247,11 +294,13 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
         ))}
       </div>
 
+      {formError && <p className="admin-error">{formError}</p>}
+
       <div className="form-actions">
-        <button type="submit" className="btn btn-solid">
-          {isEditing ? 'Save Changes' : 'Add Product'}
+        <button type="submit" className="btn btn-solid" disabled={submitting}>
+          {submitting ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Product'}
         </button>
-        <button type="button" className="btn" onClick={onCancel}>
+        <button type="button" className="btn" onClick={onCancel} disabled={submitting}>
           Cancel
         </button>
       </div>

@@ -1,29 +1,28 @@
 import { useState } from 'react';
-
-// NOTE: this is a simple front-end-only gate meant to keep casual visitors
-// out of the admin page. It is NOT real security — anyone who reads the
-// source can find this password. If this site ever needs real protection
-// (multiple staff accounts, stricter access control, etc.) it should be
-// paired with a small backend that checks credentials server-side.
-const ADMIN_PASSWORD = 'jabha2026';
-const SESSION_KEY = 'jabha_admin_authed';
-
-export function isAdminAuthed() {
-  return sessionStorage.getItem(SESSION_KEY) === 'true';
-}
+import { supabase } from '../../lib/supabaseClient';
 
 export default function AdminLogin({ onSuccess }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      sessionStorage.setItem(SESSION_KEY, 'true');
-      setError('');
-      onSuccess();
+    setLoading(true);
+    setError('');
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (signInError) {
+      setError('Incorrect email or password.');
     } else {
-      setError('That password is incorrect. Try again.');
+      onSuccess();
     }
   };
 
@@ -31,18 +30,31 @@ export default function AdminLogin({ onSuccess }) {
     <div className="admin-login">
       <form onSubmit={handleSubmit} className="admin-login-card">
         <h1>Admin Login</h1>
-        <p>Enter the admin password to manage products.</p>
+        <p>Sign in with your admin account to manage products.</p>
+
+        <label htmlFor="admin-email">Email</label>
+        <input
+          id="admin-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          autoFocus
+          required
+        />
+
         <label htmlFor="admin-password">Password</label>
         <input
           id="admin-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          autoFocus
+          required
         />
+
         {error && <p className="admin-error">{error}</p>}
-        <button type="submit" className="btn btn-solid">
-          Log In
+
+        <button type="submit" className="btn btn-solid" disabled={loading}>
+          {loading ? 'Signing in…' : 'Log In'}
         </button>
       </form>
     </div>
