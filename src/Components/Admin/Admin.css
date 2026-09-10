@@ -184,14 +184,17 @@
 }
 
 .admin-row-actions {
-  display: flex;
-  gap: 8px;
+  display: table-cell;
   white-space: nowrap;
 }
 
 .admin-row-actions .btn {
   padding: 7px 14px;
   font-size: 0.82rem;
+}
+
+.admin-row-actions .btn + .btn {
+  margin-left: 8px;
 }
 
 .admin-danger {
@@ -213,7 +216,8 @@
 
 /* ---- Product form ---- */
 .product-form {
-  max-width: 520px;
+  width: 100%;
+  max-width: 960px;
   background: var(--cream-soft);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-lg);
@@ -327,9 +331,13 @@
 
 .variant-images {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 12px;
+}
+
+.variant-image-slot {
+  min-width: 0;
 }
 
 .variant-image-slot label {
@@ -340,12 +348,14 @@
 }
 
 .variant-image-slot input[type='text'] {
+  width: 100%;
   margin-bottom: 6px;
   font-size: 0.82rem;
   padding: 8px 10px;
 }
 
 .variant-image-slot input[type='file'] {
+  max-width: 100%;
   font-size: 0.78rem;
 }
 

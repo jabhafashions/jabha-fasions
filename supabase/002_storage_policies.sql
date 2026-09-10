@@ -1,4 +1,7 @@
--- Run this after creating the "product-images" bucket in Storage.
+-- Create the bucket and make its files publicly readable.
+insert into storage.buckets (id, name, public)
+values ('product-images', 'product-images', true)
+on conflict (id) do update set public = true;
 
 create policy "Public can view product images"
   on storage.objects for select

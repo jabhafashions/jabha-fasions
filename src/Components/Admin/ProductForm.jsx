@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useProducts } from '../../context/ProductsContext';
 import { supabase } from '../../lib/supabaseClient';
 
-const EMPTY_VARIANT = { color: '', hex: '#7a1f22', images: ['', '', ''] };
+const EMPTY_VARIANT = { color: '', hex: '#7a1f22', images: ['', '', '', '', ''] };
 
 const EMPTY_FORM = {
   name: '',
@@ -36,7 +36,13 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
           : [{ ...EMPTY_VARIANT }]
         ).map((v) => ({
           ...v,
-          images: [v.images?.[0] || '', v.images?.[1] || '', v.images?.[2] || ''],
+          images: [
+            v.images?.[0] || '',
+            v.images?.[1] || '',
+            v.images?.[2] || '',
+            v.images?.[3] || '',
+            v.images?.[4] || '',
+          ],
         })),
       });
     } else {
@@ -262,7 +268,7 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
             </div>
 
             <div className="variant-images">
-              {[0, 1, 2].map((imgIndex) => (
+              {[0, 1, 2, 3, 4].map((imgIndex) => (
                 <div className="variant-image-slot" key={imgIndex}>
                   <label>Photo {imgIndex + 1}</label>
                   <input
