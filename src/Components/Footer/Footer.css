@@ -58,3 +58,29 @@
     margin-top: 0;
   }
 }
+
+.footer-contact {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
+.footer-contact a:hover {
+  text-decoration: underline;
+}
+
+.footer-social {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 1.4rem;
+}
+
+.footer-social a {
+  color: #fff;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.footer-social a:hover {
+  opacity: 1;
+}

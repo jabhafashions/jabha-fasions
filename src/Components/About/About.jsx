@@ -1,37 +1,37 @@
 import './About.css';
+import ownersImage from '../../assets/owners.jpg';
 
 export default function About() {
   return (
     <section id="about" className="about-section">
       <div className="container about-inner">
+        <div className="about-photo">
+          <img
+            src={ownersImage}
+            alt="The two women partners behind Jabha Fashions"
+            loading="lazy"
+          />
+        </div>
         <div>
           <p className="eyebrow">Our Story</p>
           <h2 className="section-heading">About Us</h2>
           <p className="about-text">
-            Jabha Fashions brings together ready-made and custom-tailored
-            traditional wear — sarees, madisars, kurtis, amman vastras, and
-            menswear — for everyday moments and special occasions alike. Each
-            piece is chosen or made with care, so what you wear feels as good
-            as it looks.
+            We are two women partners united by a passion for fashion,
+            tradition, and creativity. Our boutique brings a fresh,
+            contemporary touch to timeless Indian wear through unique
+            customisation. We specialise in transforming traditional Madisar
+            and Panjakacham sarees into beautifully crafted modern dresses,
+            creating outfits that honour heritage while embracing today&rsquo;s
+            style.
           </p>
           <p className="about-text">
-            Visit us to see the full range in person, or get in touch to
-            discuss a custom order.
+            From weddings and celebrations to special occasions, every piece is
+            thoughtfully customised to suit your personality, comfort, and
+            vision. What makes us special is our ability to turn cherished
+            traditional sarees into wearable, stylish creations without losing
+            their cultural essence.
           </p>
-        </div>
-        <div className="about-stats">
-          <div>
-            <strong>5</strong>
-            <span>Product Lines</span>
-          </div>
-          <div>
-            <strong>5</strong>
-            <span>Custom Services</span>
-          </div>
-          <div>
-            <strong>100%</strong>
-            <span>Made To Please</span>
-          </div>
+          <p className="about-tagline">Your saree, your story, our creativity.</p>
         </div>
       </div>
     </section>
