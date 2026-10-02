@@ -89,10 +89,10 @@
 
 .contact-social svg {
   width: 2.7em;
-  height: 2.7em;
+  height: 2 .7em;
 }
 
-..contact-social a {
+.contact-social a {
   display: flex;
   align-items: center;
   justify-content: center;
