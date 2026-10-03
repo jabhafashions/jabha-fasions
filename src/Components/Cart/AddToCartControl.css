@@ -1,0 +1,59 @@
+.jf-add-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--maroon);
+  background: var(--maroon);
+  color: var(--cream-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.jf-add-btn:hover {
+  background: var(--maroon-dark);
+}
+
+.jf-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--maroon);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.jf-stepper-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--maroon);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.jf-stepper-btn:hover:not(:disabled) {
+  background: var(--maroon);
+  color: var(--cream-soft);
+}
+
+.jf-stepper-btn:disabled {
+  opacity: 0.35;
+}
+
+.jf-stepper-qty {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.product-buy-row {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}

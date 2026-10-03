@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import AddToCartControl from '../Cart/AddToCartControl';
 
 const SWIPE_THRESHOLD = 40; // px of horizontal drag needed to count as a swipe
 
@@ -131,9 +132,12 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        <span className="product-price">
-          &#8377;{Number(product.price).toLocaleString('en-IN')}
-        </span>
+        <div className="product-buy-row">
+          <span className="product-price">
+            &#8377;{Number(product.price).toLocaleString('en-IN')}
+          </span>
+          <AddToCartControl product={product} variantId={activeVariant.id} />
+        </div>
       </div>
     </article>
   );

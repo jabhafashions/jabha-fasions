@@ -1,5 +1,6 @@
 import './Hero.css';
 import dancerImage from '../../assets/dancer.png';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
@@ -17,9 +18,9 @@ export default function Hero() {
             from the inside and shows on the outside.
           </p>
           <div className="hero-actions">
-            <a href="#products" className="btn btn-solid">
-              View Products
-            </a>
+            <Link to="/products" className="btn btn-solid">
+              Explore Our Products
+            </Link>
             <a href="#services" className="btn">
               Our Services
             </a>

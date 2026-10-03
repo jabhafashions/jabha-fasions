@@ -251,3 +251,40 @@
   color: var(--maroon);
   font-size: 1.05rem;
 }
+
+.products-filters a {
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-soft);
+  background: var(--cream-soft);
+  color: var(--charcoal-soft);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.products-filters a:hover {
+  border-color: var(--terracotta);
+  color: var(--maroon);
+}
+
+.products-cta {
+  margin-top: 44px;
+  text-align: center;
+}
+
+.products-page {
+  padding-top: 32px;
+}
+
+.products-back {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: var(--maroon);
+  font-weight: 500;
+  padding: 6px 12px;
+}
+
+.products-back:hover {
+  text-decoration: underline;
+}

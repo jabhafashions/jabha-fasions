@@ -62,6 +62,30 @@
   width: 100%;
 }
 
+.navbar-cart {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--maroon);
+  margin-left: 12px;
+}
+
+.navbar-cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--terracotta-deep);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+}
+
 .navbar-toggle {
   display: none;
   flex-direction: column;
