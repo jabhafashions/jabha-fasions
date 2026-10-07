@@ -9,22 +9,20 @@ import './Products.css';
 export default function ProductsPage() {
   const { products, categories, loading } = useProducts();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeCategory = searchParams.get('category') || 'All';
+  const requested = searchParams.get('category');
+  const activeCategory = categories.includes(requested) ? requested : categories[0];
 
   // Always open the page from the top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const setCategory = (cat) => {
-    if (cat === 'All') setSearchParams({});
-    else setSearchParams({ category: cat });
-  };
+  const setCategory = (cat) => setSearchParams({ category: cat });
 
-  const filtered = useMemo(() => {
-    if (activeCategory === 'All') return products;
-    return products.filter((p) => p.category === activeCategory);
-  }, [products, activeCategory]);
+  const filtered = useMemo(
+  () => products.filter((p) => p.category === activeCategory),
+  [products, activeCategory]
+);
 
   return (
     <>
@@ -40,12 +38,6 @@ export default function ProductsPage() {
           </p>
 
           <div className="products-filters" role="tablist" aria-label="Filter by category">
-            <button
-              className={activeCategory === 'All' ? 'is-active' : ''}
-              onClick={() => setCategory('All')}
-            >
-              All
-            </button>
             {categories.map((cat) => (
               <button
                 key={cat}

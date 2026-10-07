@@ -17,21 +17,22 @@ create policy "Public can read products"
   on products for select
   using (true);
 
--- Only a logged-in admin (see Step 3) can add, edit, or remove products.
+-- Only users with the server-managed app_metadata role can change products.
 create policy "Authenticated users can insert products"
   on products for insert
   to authenticated
-  with check (true);
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create policy "Authenticated users can update products"
   on products for update
   to authenticated
-  using (true);
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create policy "Authenticated users can delete products"
   on products for delete
   to authenticated
-  using (true);
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- Lets every visitor's browser get live updates when the catalogue changes.
 alter publication supabase_realtime add table products;

@@ -12,17 +12,30 @@ export default function AdminLogin({ onSuccess }) {
     setLoading(true);
     setError('');
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
-    setLoading(false);
+      if (signInError) {
+        console.error('Admin sign-in failed.', signInError);
+        if (signInError.code === 'email_not_confirmed') {
+          setError('Confirm your email address in Supabase before signing in.');
+        } else if (signInError.code === 'invalid_credentials') {
+          setError('The email or password is incorrect. Check your Supabase Auth user and try again.');
+        } else {
+          setError(signInError.message || 'Could not sign in. Please try again.');
+        }
+        return;
+      }
 
-    if (signInError) {
-      setError('Incorrect email or password.');
-    } else {
       onSuccess();
+    } catch (signInFailure) {
+      console.error('Could not reach Supabase Auth.', signInFailure);
+      setError('Could not connect to Supabase Auth. Check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 

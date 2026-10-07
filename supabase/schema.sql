@@ -27,12 +27,17 @@ create table public.orders (
 
 alter table public.orders enable row level security;
 
--- Only logged-in admins can read / update orders.
+-- Only users with the server-managed app_metadata role can read / update orders.
 -- There is deliberately NO insert policy: visitors can never write to this
 -- table directly. Orders are created by the create-order Edge Function, which
 -- uses the service-role key.
-create policy "admins read orders"   on public.orders for select to authenticated using (true);
-create policy "admins update orders" on public.orders for update to authenticated using (true) with check (true);
+create policy "admins read orders"
+  on public.orders for select to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+create policy "admins update orders"
+  on public.orders for update to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- live updates in the admin Orders tab
 alter publication supabase_realtime add table public.orders;

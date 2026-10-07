@@ -1,0 +1,78 @@
+.category-panel {
+  margin-bottom: 28px;
+  padding: 20px 24px;
+  background: var(--cream-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+}
+
+.category-panel h2 {
+  font-family: var(--font-display);
+  color: var(--maroon);
+  font-size: 1.15rem;
+  margin-bottom: 12px;
+}
+
+.category-chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.category-chips li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 16px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.category-chips small {
+  color: var(--charcoal-soft);
+}
+
+.category-chips button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--maroon);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.category-chips button:hover:not(:disabled) {
+  background: var(--maroon);
+  color: var(--cream-soft);
+}
+
+.category-chips button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.category-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.category-form input {
+  flex: 1;
+  min-width: 220px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border-soft);
+  border-radius: 999px;
+  font: inherit;
+}
+
+.category-form input:focus {
+  outline: none;
+  border-color: var(--maroon);
+}

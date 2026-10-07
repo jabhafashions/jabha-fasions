@@ -1,11 +1,31 @@
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../context/ProductsContext';
-import ProductCard from './ProductCard';
+import sareesImg from '../../assets/products/sarees/001.jpeg';
+import madisarsImg from '../../assets/products/Madisars/001.jpeg';
+import kurtisImg from '../../assets/products/Kurtis/001.jpeg';
 import './Products.css';
 
+// Fixed showcase cards: edit the text/images here, no database involved.
+const SHOWCASE = [
+  {
+    category: 'Sarees',
+    text: 'Timeless sarees for weddings, festivals and everyday elegance.',
+    image: sareesImg,
+  },
+  {
+    category: 'Madisars',
+    text: 'Traditional madisars, ready to wear or to be customised into a modern dress.',
+    image: madisarsImg,
+  },
+  {
+    category: 'Kurtis',
+    text: 'Comfortable, stylish kurtis for every occasion.',
+    image: kurtisImg,
+  },
+];
+
 export default function Products() {
-  const { products, categories, loading } = useProducts();
-  const featured = products.slice(0, 3);
+  const { categories } = useProducts();
 
   return (
     <section id="products" className="products-section">
@@ -19,24 +39,30 @@ export default function Products() {
 
         <div className="products-filters">
           {categories.map((cat) => (
-            <Link
-              key={cat}
-              to={`/products?category=${encodeURIComponent(cat)}`}
-            >
+            <Link key={cat} to={`/products?category=${encodeURIComponent(cat)}`}>
               {cat}
             </Link>
           ))}
         </div>
 
-        {loading ? (
-          <p className="products-empty">Loading products&hellip;</p>
-        ) : (
-          <div className="products-grid">
-            {featured.map((product) => (
-              <ProductCard product={product} key={product.id} />
-            ))}
-          </div>
-        )}
+        <div className="showcase-grid">
+          {SHOWCASE.map((item) => (
+            <Link
+              key={item.category}
+              to={`/products?category=${encodeURIComponent(item.category)}`}
+              className="showcase-card"
+            >
+              <div className="showcase-img">
+                <img src={item.image} alt={item.category} loading="lazy" />
+              </div>
+              <div className="showcase-body">
+                <h3>{item.category}</h3>
+                <p>{item.text}</p>
+                <span className="showcase-link">View Collection &rarr;</span>
+              </div>
+            </Link>
+          ))}
+        </div>
 
         <div className="products-cta">
           <Link to="/products" className="btn btn-solid">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProducts } from '../../context/ProductsContext';
 import ProductForm from './ProductForm';
+import CategoriesPanel from './CategoriesPanel';
 import OrdersPanel from './OrdersPanel';
 import './OrdersPanel.css';
 
@@ -68,6 +69,7 @@ export default function AdminDashboard({ onLogout }) {
         <>
           {mode === 'list' && (
             <>
+              <CategoriesPanel />
               <div className="admin-toolbar">
                 <span>
                   {loading ? 'Loading…' : `${products.length} product${products.length === 1 ? '' : 's'}`}

@@ -37,31 +37,30 @@ src/
 
 Go to `/admin` (e.g. `http://localhost:5173/admin`).
 
-- **Password:** `jabha2026` — change this in
-  `src/Components/Admin/AdminLogin.jsx` (the `ADMIN_PASSWORD` constant)
-  before this site goes live.
+- Sign in with a Supabase Auth account whose server-managed `app_metadata`
+  contains `"role": "admin"`. Set this metadata using a trusted Supabase
+  Dashboard or server-side admin workflow; do not set it from the client or
+  use user-editable `user_metadata` for authorization. There is no email
+  allowlist in the frontend.
 - From the dashboard you can **add**, **edit**, and **delete** products —
   name, category, price, description, and image (paste a URL or upload a
   file from your computer).
-- Product changes are saved in the browser's local storage, so they persist
-  between visits on the same device/browser. There is no shared database —
-  if you need the same catalogue to show up for every visitor from a single
-  source of truth, this project would need a small backend added later.
-
-### A note on the admin password
-
-This is a front-end-only password gate — good enough to keep casual
-visitors out, but anyone who inspects the site's code could find the
-password in it. If you need real access control (e.g. multiple staff
-logins), that requires a backend to check credentials server-side rather
-than in the browser.
+- The frontend hides the dashboard from non-admin accounts, and Supabase
+  row-level security enforces the same role for database and image changes.
+  After promoting an account, sign out and back in so its JWT includes the
+  updated role.
+- On an existing database, run
+  [`supabase/005_require_admin_role.sql`](./supabase/005_require_admin_role.sql)
+  after the product, category, order, and storage policies have been set up.
 
 ## Editing categories
 
-The five product categories (Sarees, Madisars, Kurtis, Amman Vastras, Mens
-Collections) live in `src/data/initialProducts.js` as `CATEGORIES`. Add or
-rename entries there and they'll show up in the admin category dropdown and
-the product filter on the site.
+Categories are managed from the Categories panel at the top of the Products
+tab in `/admin`. To set up category storage, run
+[`supabase/004_create_categories_table.sql`](./supabase/004_create_categories_table.sql)
+in the Supabase SQL Editor after the products table has been created. Existing
+categories remain visible while their products exist, even if the category
+row is removed.
 
 ## Editing services
 

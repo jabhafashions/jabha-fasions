@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { CATEGORIES } from '../data/initialProducts';
 import { productImage } from '../utils/productImages';
@@ -29,6 +29,7 @@ function addLocalImageFallbacks(productRows) {
 
 export function ProductsProvider({ children }) {
   const [products, setProducts] = useState([]);
+  const [categoryList, setCategoryList] = useState(CATEGORIES); // fallback until the table loads
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -48,11 +49,22 @@ export function ProductsProvider({ children }) {
     setLoading(false);
   };
 
+  const fetchCategories = async () => {
+    const { data, error: catError } = await supabase
+      .from('categories')
+      .select('name')
+      .order('id', { ascending: true });
+    if (catError) {
+      console.error('Could not load categories.', catError);
+      return;
+    }
+    setCategoryList(data.map((category) => category.name));
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
 
-    // Live sync: when anyone (any device, any tab) changes the catalogue,
-    // every open copy of the site picks it up automatically.
     const channel = supabase
       .channel('products-changes')
       .on(
@@ -60,12 +72,57 @@ export function ProductsProvider({ children }) {
         { event: '*', schema: 'public', table: 'products' },
         () => fetchProducts()
       )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'categories' },
+        () => fetchCategories()
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // Include any category still used by a product, even if its row is missing.
+  const categories = useMemo(
+    () => [...new Set([...categoryList, ...products.map((product) => product.category)])],
+    [categoryList, products]
+  );
+
+  const addCategory = async (rawName) => {
+    const name = rawName.trim().replace(/\s+/g, ' ');
+    if (!name) return false;
+    if (categories.some((category) => category.toLowerCase() === name.toLowerCase())) {
+      setError('That category already exists.');
+      return false;
+    }
+    const { error: insertError } = await supabase.from('categories').insert({ name });
+    if (insertError) {
+      console.error('Could not add category.', insertError);
+      setError("Couldn't add that category — please try again.");
+      return false;
+    }
+    await fetchCategories();
+    setError(null);
+    return true;
+  };
+
+  const deleteCategory = async (name) => {
+    if (products.some((product) => product.category === name)) {
+      setError(`"${name}" still has products. Move or delete them first.`);
+      return false;
+    }
+    const { error: deleteError } = await supabase.from('categories').delete().eq('name', name);
+    if (deleteError) {
+      console.error('Could not delete category.', deleteError);
+      setError("Couldn't delete that category — please try again.");
+      return false;
+    }
+    await fetchCategories();
+    setError(null);
+    return true;
+  };
 
   const addProduct = async (product) => {
     const { error: insertError } = await supabase.from('products').insert({
@@ -113,7 +170,9 @@ export function ProductsProvider({ children }) {
     <ProductsContext.Provider
       value={{
         products,
-        categories: CATEGORIES,
+        categories,
+        addCategory,
+        deleteCategory,
         loading,
         error,
         addProduct,

@@ -25,10 +25,20 @@ export default function Admin() {
     return <div className="admin-page admin-checking">Checking your session&hellip;</div>;
   }
 
+  const isAdmin = session?.user.app_metadata?.role === 'admin';
+
   return (
     <div className="admin-page">
-      {session ? (
+      {isAdmin ? (
         <AdminDashboard onLogout={handleLogout} />
+      ) : session ? (
+        <main className="admin-dashboard">
+          <section className="admin-login-card">
+            <h1>Admin access required</h1>
+            <p>Your account is signed in but does not have the admin role.</p>
+            <button className="btn btn-solid" onClick={handleLogout}>Log Out</button>
+          </section>
+        </main>
       ) : (
         <AdminLogin onSuccess={() => {}} />
       )}

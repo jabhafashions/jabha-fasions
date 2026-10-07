@@ -10,14 +10,27 @@ create policy "Public can view product images"
 create policy "Authenticated users can upload product images"
   on storage.objects for insert
   to authenticated
-  with check (bucket_id = 'product-images');
+  with check (
+    bucket_id = 'product-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
 
 create policy "Authenticated users can replace product images"
   on storage.objects for update
   to authenticated
-  using (bucket_id = 'product-images');
+  using (
+    bucket_id = 'product-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  )
+  with check (
+    bucket_id = 'product-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
 
 create policy "Authenticated users can delete product images"
   on storage.objects for delete
   to authenticated
-  using (bucket_id = 'product-images');
+  using (
+    bucket_id = 'product-images'
+    and (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
+  );
