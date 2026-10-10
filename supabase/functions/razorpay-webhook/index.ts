@@ -1,8 +1,9 @@
 // Safety net: if a customer pays and then closes the tab before verify-payment
-// runs, Razorpay still calls this and the order gets marked paid.
+// runs, Razorpay still calls this and the order gets marked paid (and emailed).
 // Deploy with --no-verify-jwt (Razorpay does not send a Supabase token).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { hmacHex, safeEqual } from '../_shared/razorpay.ts';
+import { markPaidAndNotify } from '../_shared/notify.ts';
 
 Deno.serve(async (req) => {
   const raw = await req.text();
@@ -21,10 +22,7 @@ Deno.serve(async (req) => {
   );
 
   if (event.event === 'payment.captured' || event.event === 'order.paid') {
-    await supabase
-      .from('orders')
-      .update({ payment_status: 'paid', razorpay_payment_id: payment.id })
-      .eq('razorpay_order_id', razorpayOrderId);
+    await markPaidAndNotify(supabase, razorpayOrderId, payment.id);
   } else if (event.event === 'payment.failed') {
     // only if it hasn't already been paid (customers can retry on the same order)
     await supabase

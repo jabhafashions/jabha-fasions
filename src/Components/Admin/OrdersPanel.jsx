@@ -10,6 +10,16 @@ const FILTERS = [
   { id: 'all', label: 'All' },
 ];
 
+// supabase.functions.invoke hides the server's message inside error.context
+async function readError(error, fallback) {
+  try {
+    const body = await error.context.json();
+    return body.error || fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 const formatDate = (iso) =>
   new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -20,6 +30,8 @@ export default function OrdersPanel() {
   const [filter, setFilter] = useState('paid');
   const [search, setSearch] = useState('');
   const [openId, setOpenId] = useState(null);
+  const [ship, setShip] = useState(null); // shipping form: { order, courier, ..., resend, busy }
+  const [notice, setNotice] = useState('');
 
   const fetchOrders = async () => {
     const { data, error: fetchError } = await supabase
@@ -57,6 +69,64 @@ export default function OrdersPanel() {
     else fetchOrders();
   };
 
+  const handleStatusChange = (order, value) => {
+    if (value === 'shipped' && order.order_status !== 'shipped') {
+      if (order.payment_status !== 'paid') {
+        setError('Only paid orders can be marked as shipped.');
+        return;
+      }
+      openShipForm(order, false);
+      return;
+    }
+    updateStatus(order.id, value);
+  };
+
+  const openShipForm = (order, resend) => {
+    setError('');
+    setNotice('');
+    setShip({
+      order,
+      courier: order.courier || '',
+      trackingNumber: order.tracking_number || '',
+      trackingUrl: order.tracking_url || '',
+      sendEmail: true,
+      resend,
+      busy: false,
+    });
+  };
+
+  const submitShip = async (e) => {
+    e.preventDefault();
+    setShip((s) => ({ ...s, busy: true }));
+    setError('');
+    setNotice('');
+
+    const { data, error: fnError } = await supabase.functions.invoke('send-shipped-email', {
+      body: {
+        orderId: ship.order.id,
+        courier: ship.courier,
+        trackingNumber: ship.trackingNumber,
+        trackingUrl: ship.trackingUrl,
+        sendEmail: ship.sendEmail,
+        resend: ship.resend,
+      },
+    });
+
+    if (fnError) {
+      setError(await readError(fnError, "Couldn't update that order - please try again."));
+      setShip((s) => ({ ...s, busy: false }));
+      return;
+    }
+
+    if (data.emailSent) setNotice(`Marked as shipped. Email sent to ${ship.order.email}.`);
+    else if (data.alreadySent) setNotice('Marked as shipped. The customer was already emailed earlier - use "Edit tracking / resend email" to send again.');
+    else if (data.emailError) setNotice(`Marked as shipped, but the email was not sent. ${data.emailError}`);
+    else setNotice('Marked as shipped (no email sent).');
+
+    setShip(null);
+    fetchOrders();
+  };
+
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     return orders.filter((o) => {
@@ -75,6 +145,7 @@ export default function OrdersPanel() {
   return (
     <div className="orders-panel">
       {error && <div className="admin-banner admin-banner-error">{error}</div>}
+      {notice && <div className="admin-banner orders-notice">{notice}</div>}
 
       <div className="admin-toolbar">
         <span>
@@ -133,7 +204,7 @@ export default function OrdersPanel() {
                   <td>
                     <select
                       value={o.order_status}
-                      onChange={(e) => updateStatus(o.id, e.target.value)}
+                      onChange={(e) => handleStatusChange(o, e.target.value)}
                     >
                       {ORDER_STATUSES.map((s) => (
                         <option key={s} value={s}>{s}</option>
@@ -182,6 +253,27 @@ export default function OrdersPanel() {
                             {o.shipping > 0 ? formatINR(o.shipping) : 'Free'} ·{' '}
                             <strong>Total {formatINR(o.total)}</strong>
                           </p>
+                          {o.order_status === 'shipped' || o.tracking_number || o.courier ? (
+                            <p>
+                              <strong>Shipping:</strong>{' '}
+                              {[o.courier, o.tracking_number].filter(Boolean).join(' - ') || 'No tracking details'}
+                              {o.tracking_url && (
+                                <> · <a href={o.tracking_url} target="_blank" rel="noreferrer">tracking link</a></>
+                              )}
+                              {o.order_status === 'shipped' && (
+                                <>
+                                  <br />
+                                  <button
+                                    type="button"
+                                    className="btn order-resend"
+                                    onClick={() => openShipForm(o, true)}
+                                  >
+                                    Edit tracking / resend email
+                                  </button>
+                                </>
+                              )}
+                            </p>
+                          ) : null}
                           {o.razorpay_payment_id && (
                             <p className="order-ref">Razorpay payment: {o.razorpay_payment_id}</p>
                           )}
@@ -200,6 +292,61 @@ export default function OrdersPanel() {
           </tbody>
         </table>
       </div>
+      {ship && (
+        <div className="ship-overlay" onClick={() => !ship.busy && setShip(null)}>
+          <form className="ship-modal" onClick={(e) => e.stopPropagation()} onSubmit={submitShip}>
+            <h3>{ship.resend ? 'Edit tracking / resend email' : 'Mark as shipped'}</h3>
+            <p className="ship-sub">
+              Order {ship.order.order_number} &middot; {ship.order.customer_name}
+            </p>
+
+            <label>
+              Courier (optional)
+              <input
+                value={ship.courier}
+                maxLength={60}
+                placeholder="e.g. DTDC, India Post, Delhivery"
+                onChange={(e) => setShip({ ...ship, courier: e.target.value })}
+              />
+            </label>
+            <label>
+              Tracking number (optional)
+              <input
+                value={ship.trackingNumber}
+                maxLength={80}
+                onChange={(e) => setShip({ ...ship, trackingNumber: e.target.value })}
+              />
+            </label>
+            <label>
+              Tracking link (optional)
+              <input
+                type="url"
+                value={ship.trackingUrl}
+                maxLength={300}
+                placeholder="https://..."
+                onChange={(e) => setShip({ ...ship, trackingUrl: e.target.value })}
+              />
+            </label>
+            <label className="ship-check">
+              <input
+                type="checkbox"
+                checked={ship.sendEmail}
+                onChange={(e) => setShip({ ...ship, sendEmail: e.target.checked })}
+              />
+              Email the customer ({ship.order.email})
+            </label>
+
+            <div className="ship-actions">
+              <button type="button" className="btn" disabled={ship.busy} onClick={() => setShip(null)}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-solid" disabled={ship.busy}>
+                {ship.busy ? 'Saving…' : ship.resend ? 'Save & resend' : 'Mark shipped'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
