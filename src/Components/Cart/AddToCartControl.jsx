@@ -1,10 +1,11 @@
-import { useCart, MAX_QTY } from '../../context/CartContext';
+import { useCart } from '../../context/CartContext';
 import './AddToCartControl.css';
 
 // "Add to Cart" pill that turns into a  [ - 2 + ]  stepper once the item is in
 // the cart. At quantity 1 the minus becomes a bin so tapping it removes the line.
+// The + button stops when the customer holds all the stock that is available.
 export default function AddToCartControl({ product, variantId }) {
-  const { getQty, updateQty, addToCart, cartKey } = useCart();
+  const { getQty, updateQty, addToCart, cartKey, isAtLimit } = useCart();
   const qty = getQty(product.id, variantId);
   const key = cartKey(product.id, variantId);
 
@@ -13,6 +14,7 @@ export default function AddToCartControl({ product, variantId }) {
       <button
         type="button"
         className="jf-add-btn"
+        disabled={isAtLimit(product.id)}
         onClick={() => addToCart(product.id, variantId, 1)}
       >
         Add to Cart
@@ -35,7 +37,7 @@ export default function AddToCartControl({ product, variantId }) {
         type="button"
         className="jf-stepper-btn"
         aria-label="Increase quantity"
-        disabled={qty >= MAX_QTY}
+        disabled={isAtLimit(product.id)}
         onClick={() => updateQty(key, qty + 1)}
       >
         +

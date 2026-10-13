@@ -9,6 +9,7 @@ const EMPTY_FORM = {
   category: '',
   price: '',
   description: '',
+  stock: '',
   variants: [{ ...EMPTY_VARIANT }],
 };
 
@@ -30,6 +31,7 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
         name: initialValue.name,
         category: initialValue.category,
         price: initialValue.price,
+        stock: initialValue.stock ?? '',
         description: initialValue.description,
         variants: (initialValue.variants?.length
           ? initialValue.variants
@@ -147,6 +149,7 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
       category: form.category,
       price: Number(form.price) || 0,
       description: form.description,
+      stock: Math.max(0, Math.floor(Number(form.stock)) || 0),
       variants: form.variants.map((v) => ({
         id: v.id || makeVariantId(),
         color: v.color,
@@ -211,6 +214,19 @@ export default function ProductForm({ initialValue, onDone, onCancel }) {
           required
         />
       </div>
+
+      <div className="form-row">
+  <label htmlFor="pf-stock">Number of items in stock</label>
+  <input
+    id="pf-stock"
+    type="number"
+    min="0"
+    step="1"
+    value={form.stock}
+    onChange={handleChange('stock')}
+    required
+  />
+</div>
 
       <div className="form-row">
         <label htmlFor="pf-description">Description</label>

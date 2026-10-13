@@ -214,6 +214,11 @@
   padding: 32px !important;
 }
 
+.stock-low {
+  color: #b3261e;
+  font-weight: 600;
+}
+
 /* ---- Product form ---- */
 .product-form {
   width: 100%;

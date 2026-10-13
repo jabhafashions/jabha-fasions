@@ -87,6 +87,7 @@ export default function AdminDashboard({ onLogout }) {
                       <th>Name</th>
                       <th>Category</th>
                       <th>Price</th>
+                      <th>Stock</th>
                       <th>Description</th>
                       <th>Colors</th>
                       <th></th>
@@ -105,6 +106,9 @@ export default function AdminDashboard({ onLogout }) {
                         <td>{product.name}</td>
                         <td>{product.category}</td>
                         <td>&#8377;{Number(product.price).toLocaleString('en-IN')}</td>
+                        <td className={Number(product.stock) <= 5 ? 'stock-low' : ''}>
+  {Number(product.stock) > 0 ? product.stock : 'Out of stock'}
+</td>
                         <td className="admin-desc-cell">{product.description}</td>
                         <td>
                           {(product.variants || []).map((v) => (
@@ -124,7 +128,7 @@ export default function AdminDashboard({ onLogout }) {
                     ))}
                     {products.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="admin-empty">
+                        <td colSpan={8} className="admin-empty">
                           No products yet — add your first one above.
                         </td>
                       </tr>

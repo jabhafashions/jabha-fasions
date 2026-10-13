@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     const ids = [...new Set(rawItems.map((i: any) => i.productId))];
     const { data: products, error: pErr } = await supabase
       .from('products')
-      .select('id, name, price, variants')
+      .select('id, name, price, variants, stock')
       .in('id', ids);
     if (pErr || !products) return json({ error: 'Could not load products.' }, 500);
 
@@ -69,6 +69,22 @@ Deno.serve(async (req) => {
         price: Number(p.price),
         qty,
       });
+    }
+
+    // stock check: total wanted per product (all colours together) vs what is left
+    const wanted = new Map<string, number>();
+    for (const l of lines) {
+      wanted.set(String(l.productId), (wanted.get(String(l.productId)) ?? 0) + l.qty);
+    }
+    for (const [pid, qty] of wanted) {
+      const p = products.find((x: any) => String(x.id) === pid);
+      const stock = Number(p?.stock ?? 0);
+      if (stock <= 0) {
+        return json({ error: `Sorry, "${p?.name}" is out of stock.` }, 409);
+      }
+      if (qty > stock) {
+        return json({ error: `Only ${stock} of "${p?.name}" left. Please reduce the quantity.` }, 409);
+      }
     }
 
     const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);

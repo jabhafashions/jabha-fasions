@@ -130,6 +130,7 @@ export function ProductsProvider({ children }) {
       name: product.name,
       price: product.price,
       description: product.description,
+      stock: product.stock,
       variants: product.variants,
     });
     if (insertError) {

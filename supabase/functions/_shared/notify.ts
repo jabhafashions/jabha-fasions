@@ -114,6 +114,12 @@ export async function markPaidAndNotify(
     .single();
   if (error || !order) return null;
 
+  // take the purchased quantities off the stock (runs once per order)
+  const { error: stockError } = await supabase.rpc('deduct_stock_for_order', {
+    p_order_id: order.id,
+  });
+  if (stockError) console.error('Stock deduction failed:', stockError);
+
   // "claim" the emails: only one caller can flip emails_sent_at from null
   const { data: claimed } = await supabase
     .from('orders')

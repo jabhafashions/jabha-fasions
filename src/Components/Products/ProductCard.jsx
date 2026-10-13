@@ -38,13 +38,16 @@ export default function ProductCard({ product }) {
     touchStartX.current = null;
   };
 
+  const inStock = Number(product.stock) > 0;
+
   return (
     <article className="product-card">
       <div
-        className="product-image"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+  className={`product-image ${inStock ? '' : 'is-soldout'}`}
+  onTouchStart={handleTouchStart}
+  onTouchEnd={handleTouchEnd}
+>
+  {!inStock && <span className="product-soldout-badge">Out of Stock</span>}
         {activeImage ? (
           <img
             src={activeImage}
@@ -136,7 +139,14 @@ export default function ProductCard({ product }) {
           <span className="product-price">
             &#8377;{Number(product.price).toLocaleString('en-IN')}
           </span>
-          <AddToCartControl product={product} variantId={activeVariant.id} />
+          {inStock ? (
+  <AddToCartControl product={product} variantId={activeVariant.id} />
+) : (
+  <button type="button" className="jf-add-btn" disabled>Out of Stock</button>
+)}
+{inStock && product.stock <= 5 && (
+  <span className="product-low-stock">Only {product.stock} left</span>
+)}
         </div>
       </div>
     </article>

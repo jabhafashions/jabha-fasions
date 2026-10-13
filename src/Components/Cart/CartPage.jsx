@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../Navbar/Navbar';
 import Footer from '../Footer/Footer';
-import { useCart, MAX_QTY } from '../../context/CartContext';
+import { useCart } from '../../context/CartContext';
 import { FREE_SHIPPING_ABOVE, formatINR } from '../../utils/shipping';
 import './Cart.css';
 
 export default function CartPage() {
-  const { lines, subtotal, shipping, total, updateQty, removeItem } = useCart();
+  const { lines, subtotal, shipping, total, updateQty, removeItem, stockIssue, isAtLimit } = useCart();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,6 +38,10 @@ export default function CartPage() {
                       <h3>{line.name}</h3>
                       {line.color && <p className="cart-line-meta">Colour: {line.color}</p>}
                       <p className="cart-line-meta">{formatINR(line.price)} each</p>
+                      {!line.inStock && <p className="cart-stock-warn">Out of stock - please remove this item.</p>}
+                      {line.inStock && line.exceeds && (
+                        <p className="cart-stock-warn">Only {line.stock} available - please reduce the quantity.</p>
+                      )}
 
                       <div className="cart-line-actions">
                         <div className="jf-stepper">
@@ -54,7 +58,7 @@ export default function CartPage() {
                             type="button"
                             className="jf-stepper-btn"
                             aria-label="Increase quantity"
-                            disabled={line.qty >= MAX_QTY}
+                            disabled={isAtLimit(line.productId)}
                             onClick={() => updateQty(line.key, line.qty + 1)}
                           >
                             +
@@ -89,7 +93,13 @@ export default function CartPage() {
                 <div className="summary-row summary-total">
                   <span>Total</span><span>{formatINR(total)}</span>
                 </div>
-                <Link to="/checkout" className="btn btn-solid summary-btn">Proceed to Checkout</Link>
+                {stockIssue ? (
+                  <button type="button" className="btn btn-solid summary-btn" disabled>
+                    Fix stock issues to continue
+                  </button>
+                ) : (
+                  <Link to="/checkout" className="btn btn-solid summary-btn">Proceed to Checkout</Link>
+                )}
                 <Link to="/products" className="summary-link">Continue shopping</Link>
               </aside>
             </div>
